@@ -523,3 +523,36 @@ footer{margin-top:1.5rem}
 /* RAL Classic / BS 4800 colour chips on the Specification page (sRGB values for the named codes) */
 :root{--ral-9010:#F1ECE1;--ral-1003:#F9A800;--ral-3003:#861A22;--ral-3013:#972E25;--bs-18e53:#2569A1}
 .ral .chip{width:1.7rem;height:1.7rem;border:1px solid rgba(0,0,0,.18)}
+
+/* photo mosaic: one tall photo beside two landscape photos */
+.figmosaic{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;justify-self:start;width:100%;max-width:30rem;align-items:start}
+.figmosaic .fig{max-width:none}
+.figmosaic .fig.tall{grid-row:span 2;align-self:stretch;display:flex;flex-direction:column}
+.figmosaic .fig.tall .frame{flex:1;aspect-ratio:auto;position:relative;min-height:16rem}
+.figmosaic .fig.tall .frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* subtle hover motion: navigation links */
+.site-head .nav a{position:relative;transition:background-color .3s,color .3s,transform .3s cubic-bezier(.2,.7,.2,1)}
+.site-head .nav a::after{display:block;content:"";position:absolute;left:.9rem;right:.9rem;bottom:.3rem;height:2px;border-radius:2px;background:var(--accent);transform:scaleX(0);transform-origin:center;transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+.site-head .nav a:hover{transform:translateY(-1px)}
+.site-head .nav a:hover::after{transform:scaleX(1)}
+.site-head .nav a[aria-current=page]::after{display:none}
+@media (max-width:64rem){.site-head .nav a::after{left:.3rem;right:.3rem}}
+
+/* subtle hover motion: buttons */
+.btn{position:relative;overflow:hidden;transition-property:transform,box-shadow,background-color,border-color;transition-duration:.3s;transition-timing-function:cubic-bezier(.2,.7,.2,1)}
+.btn::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-20deg);transition:left .7s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+.btn:hover{transform:translateY(-2px) scale(1.015)}
+.btn:hover::before{left:130%}
+.btn:active{transform:translateY(0) scale(.98);box-shadow:none;transition-duration:.1s}
+.btn.ghost::before{display:none}
+@media (prefers-reduced-motion:reduce){.btn::before{display:none}.site-head .nav a:hover{transform:none}}
+
+/* golf tee scroll slider: small, fixed to the right edge, wide screens only */
+.teeslide{display:none;position:fixed;right:max(.8rem,env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);width:1.6rem;height:9rem;z-index:30;cursor:pointer;touch-action:none;opacity:.55;transition:opacity .3s;--p:0}
+@media (min-width:64.01rem){.teeslide{display:block}}
+.teeslide[hidden]{display:none!important}
+.teeslide:hover,.teeslide:focus-visible,.teeslide.drag{opacity:1}
+.teeslide-line{position:absolute;left:50%;top:.8rem;bottom:.8rem;width:1px;background:var(--line-strong);transform:translateX(-50%)}
+.teeslide-thumb{position:absolute;left:50%;top:calc(var(--p) * (100% - 1.65rem));width:.9rem;height:1.65rem;transform:translateX(-50%);color:var(--accent);pointer-events:none}
+.teeslide-thumb svg{display:block;width:100%;height:100%;overflow:visible}

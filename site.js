@@ -139,3 +139,52 @@ document.querySelectorAll('[data-rail]').forEach(rail => {
     rail.scrollBy({ left: step * Number(btn.dataset.dir), behavior: 'smooth' });
   }));
 });
+
+/* golf tee scroll slider: a small tee that tracks page position and can be dragged */
+(function(){
+  const root = document.documentElement;
+  const el = document.createElement('div');
+  el.className = 'teeslide';
+  el.setAttribute('role','slider');
+  el.setAttribute('aria-label','Scroll position');
+  el.setAttribute('aria-orientation','vertical');
+  el.setAttribute('aria-valuemin','0');
+  el.setAttribute('aria-valuemax','100');
+  el.setAttribute('aria-valuenow','0');
+  el.tabIndex = 0;
+  el.innerHTML = '<span class="teeslide-line"></span><span class="teeslide-thumb"><svg viewBox="0 2 18 33" aria-hidden="true" focusable="false"><circle cx="9" cy="7.2" r="4" fill="#fff" stroke="currentColor" stroke-width="1.1"/><path d="M3 9.5Q9 13 15 9.5L10.1 15L9.5 31L9 33.6L8.5 31L7.9 15Z" fill="currentColor"/></svg></span>';
+  document.body.appendChild(el);
+  const range = () => Math.max(0, root.scrollHeight - window.innerHeight);
+  let queued = false;
+  function paint(){
+    queued = false;
+    const m = range();
+    el.hidden = m < 240;
+    const p = m ? Math.min(1, Math.max(0, window.scrollY / m)) : 0;
+    el.style.setProperty('--p', p.toFixed(4));
+    el.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+  }
+  function queue(){ if (!queued){ queued = true; requestAnimationFrame(paint); } }
+  function jump(p){ window.scrollTo({ top: Math.min(1, Math.max(0, p)) * range(), behavior: 'instant' }); }
+  function fromPointer(e){
+    const r = el.getBoundingClientRect(), th = el.querySelector('.teeslide-thumb').offsetHeight;
+    jump((e.clientY - r.top - th / 2) / (r.height - th));
+  }
+  let dragging = false;
+  el.addEventListener('pointerdown', e => { dragging = true; el.classList.add('drag'); el.setPointerCapture(e.pointerId); fromPointer(e); e.preventDefault(); });
+  el.addEventListener('pointermove', e => { if (dragging) fromPointer(e); });
+  const stop = () => { dragging = false; el.classList.remove('drag'); };
+  el.addEventListener('pointerup', stop);
+  el.addEventListener('pointercancel', stop);
+  el.addEventListener('keydown', e => {
+    const p = range() ? window.scrollY / range() : 0;
+    const step = { ArrowDown: .08, ArrowUp: -.08, PageDown: .25, PageUp: -.25 }[e.key];
+    if (step !== undefined){ jump(p + step); e.preventDefault(); }
+    else if (e.key === 'Home'){ jump(0); e.preventDefault(); }
+    else if (e.key === 'End'){ jump(1); e.preventDefault(); }
+  });
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  window.addEventListener('load', queue);
+  paint();
+})();
